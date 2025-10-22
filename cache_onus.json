@@ -1,0 +1,26 @@
+{
+  "data": {
+    "response": [
+      {
+        "id": "1",
+        "name": "POAQUIL",
+        "olt_hardware_version": "ZTE-C300",
+        "ip": "45.5.118.162",
+        "telnet_port": "2333",
+        "snmp_port": "2161"
+      },
+      {
+        "id": "3",
+        "name": "COMALAPA",
+        "olt_hardware_version": "ZTE-C300",
+        "ip": "45.228.235.21",
+        "telnet_port": "2333",
+        "snmp_port": "2161"
+      }
+    ],
+    "response_code": "success",
+    "status": true
+  },
+  "lastFetch": 1761102994818,
+  "ttl": 3600000
+}

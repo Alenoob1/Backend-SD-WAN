@@ -1,43 +1,39 @@
-// src/index.js
+// ✅ Cargar variables de entorno solo una vez
 require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
-const routes = require("./routes.js");
-
-// ✅ agregado
 const http = require("http");
-const { Server } = require("socket.io");
 
+// 🧩 Importar rutas
+const routes = require("./routes");
+const authorizeRouter = require("./authorize");
+
+// 🚀 Inicializar Express
 const app = express();
 
-// Seguridad básica (sin cambios)
-app.use(cors({ origin: ["http://localhost:5173", "http://localhost:3000"] }));
+// ⚙️ Middlewares globales
+app.use(cors({ origin: ["http://localhost:5173"] }));
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(rateLimit({ windowMs: 60_000, max: 120 }));
 
+// 🧠 Endpoints principales
 app.use("/api", routes);
+app.use("/api/authorize", authorizeRouter);
 
-// ✅ servidor HTTP + Socket.IO (nuevo)
+// 🩺 Endpoint de prueba de vida
+app.get("/api/health", (req, res) => {
+  res.json({ ok: true, message: "✅ AleOLT backend funcionando correctamente" });
+});
+
+// 🌐 Crear servidor HTTP
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: ["http://localhost:5173", "http://localhost:3000"],
-    methods: ["GET", "POST"],
-  },
+
+// ⚙️ Puerto y arranque
+const PORT = process.env.PORT || 4000;
+server.listen(PORT, () => {
+  console.log(`🚀 AleOLT API corriendo en: http://localhost:${PORT}`);
 });
-
-// ✅ exporta io para usarlo en otros módulos (p. ej. src/server.js)
-module.exports.io = io;
-
-// (opcional) log de conexiones para depurar
-io.on("connection", (socket) => {
-  console.log("⚡ Socket conectado:", socket.id);
-});
-
-const port = process.env.PORT || 4000;
-server.listen(port, () =>
-  console.log(`🚀 AleOLT API en http://localhost:${port}`)
-);
