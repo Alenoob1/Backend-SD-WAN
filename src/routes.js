@@ -175,6 +175,28 @@ router.get("/olts/:id/vlans", async (req, res) => {
   }
 });
 
+// 🔹 OBTENER TEMPERATURA Y UPTIME DE OLTs
+router.get("/olts/temperature", async (req, res) => {
+  try {
+    console.log("🌡️ Obteniendo temperatura y uptime de OLTs desde SmartOLT...");
+    const data = await sGet(ENDPOINTS.getOltsTempUptime, {}, true);
+    const olts = data?.response || [];
+
+    res.json({
+      status: true,
+      total: olts.length,
+      olts,
+    });
+  } catch (err) {
+    console.error("❌ Error obteniendo temperatura de OLTs:", err.message);
+    res.status(500).json({
+      status: false,
+      error: "Error al obtener temperatura y uptime de OLTs",
+    });
+  }
+});
+
+
 /* ─────────────────────────────── 📊 DASHBOARD ─────────────────────────────── */
 router.get("/olt/stats", async (req, res) => {
   try {

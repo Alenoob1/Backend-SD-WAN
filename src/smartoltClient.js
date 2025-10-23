@@ -168,6 +168,9 @@ const ENDPOINTS = {
   // 🟢 OLTs
   getOlts: "/system/get_olts",
   getVlans: "/olt/get_vlans",
+  // 🟢 Temperatura y uptime de OLTs
+getOltsTempUptime: "/olt/get_olts_uptime_and_env_temperature",
+
 
   // 🟢 ONUs
   getOnusStatuses: "/onu/get_onus_statuses",
