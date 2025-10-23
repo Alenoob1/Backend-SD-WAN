@@ -33,7 +33,7 @@ app.get("/api/health", (req, res) => {
 const server = http.createServer(app);
 
 // ⚙️ Puerto y arranque
-const PORT = process.env.PORT || 4000;
-server.listen(PORT, () => {
-  console.log(`🚀 AleOLT API corriendo en: http://localhost:${PORT}`);
+const port = process.env.PORT || 4000;
+app.listen(port, '0.0.0.0', () => {
+  console.log(`🚀 AleOLT API corriendo correctamente en Render (puerto ${port})`);
 });
