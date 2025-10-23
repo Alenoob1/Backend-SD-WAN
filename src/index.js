@@ -15,7 +15,18 @@ const authorizeRouter = require("./authorize");
 const app = express();
 
 // ⚙️ Middlewares globales
-app.use(cors({ origin: ["http://localhost:5173"] }));
+app.use(
+  cors({
+    origin: [
+      "https://sd-wan-conectat-5g2g.vercel.app", // dominio del frontend desplegado
+      "http://localhost:5173",                   // entorno local
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(rateLimit({ windowMs: 60_000, max: 120 }));
@@ -34,6 +45,9 @@ const server = http.createServer(app);
 
 // ⚙️ Puerto y arranque
 const port = process.env.PORT || 4000;
-app.listen(port, '0.0.0.0', () => {
+server.listen(port, "0.0.0.0", () => {
   console.log(`🚀 AleOLT API corriendo correctamente en Render (puerto ${port})`);
+  console.log(`🌍 CORS habilitado para:`);
+  console.log(`   - https://sd-wan-conectat-5g2g.vercel.app`);
+  console.log(`   - http://localhost:5173`);
 });
