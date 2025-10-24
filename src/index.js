@@ -47,7 +47,7 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 4000;
 
 // 🚀 Iniciar servidor
-server.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 AleOLT API corriendo correctamente en Railway (puerto ${PORT})`);
   console.log(`🌍 CORS habilitado para:`);
   console.log(`   - https://sd-wan-conectat-5g2g.vercel.app`);
