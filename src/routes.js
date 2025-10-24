@@ -380,6 +380,7 @@ router.post("/onus/:id/set-wan-static", async (req, res) => {
 });
 
 /* ─────────────────────────────── 🗑️ ELIMINAR ONU ─────────────────────────────── */
+// 🗑️ Eliminar ONU por external_id
 router.post("/onus/delete/:external_id", async (req, res) => {
   try {
     const { external_id } = req.params;
@@ -388,29 +389,34 @@ router.post("/onus/delete/:external_id", async (req, res) => {
       return res.status(400).json({ error: "Falta el parámetro external_id" });
     }
 
-    console.log(`🗑️ Eliminando ONU con ID: ${external_id}`);
+    console.log(`🗑️ Eliminando ONU con external_id: ${external_id}`);
 
-    const response = await sPost(`${ENDPOINTS.deleteOnu}/${external_id}`);
+    // SmartOLT no requiere body, solo el header X-Token
+    const response = await sPost(`/onu/delete/${external_id}`, {});
+
     console.log("🔧 Respuesta SmartOLT:", response);
 
     if (response?.status === false) {
       return res.status(400).json({
-        message: "No se pudo eliminar la ONU",
-        details: response?.error || response?.message || "Error desconocido",
+        status: false,
+        message: response?.error || response?.message || "SmartOLT rechazó la eliminación",
       });
     }
 
     return res.json({
-      message: "ONU eliminada correctamente",
+      status: true,
+      message: "ONU eliminada correctamente 🗑️",
       response,
     });
   } catch (error) {
     console.error("❌ Error al eliminar ONU:", error.message);
     res.status(500).json({
-      error: "Error al eliminar la ONU",
+      status: false,
+      message: "Error al eliminar la ONU",
       details: error.message,
     });
   }
 });
+
 
 module.exports = router;
