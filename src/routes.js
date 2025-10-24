@@ -94,6 +94,7 @@ router.get("/onus/unconfigured", async (req, res) => {
 });
 
 // 🔹 Habilitar / Deshabilitar ONU
+// 🔹 Habilitar / Deshabilitar ONU
 router.post("/onus/:id/enable", async (req, res) => {
   const payload = { id: req.params.id, ...req.body };
   const data = await sPost(ENDPOINTS.enableOnu, payload);
@@ -105,6 +106,45 @@ router.post("/onus/:id/disable", async (req, res) => {
   const data = await sPost(ENDPOINTS.disableOnu, payload);
   res.status(data?.status === false ? 400 : 200).json(data);
 });
+
+// 🔹 Potencia óptica
+router.get("/onus/:id/power", async (req, res) => {
+  const data = await sGet(ENDPOINTS.onuPower, { id: req.params.id });
+  res.status(data?.status === false ? 400 : 200).json(data);
+});
+
+/* ─────────────────────────────── 🟢 AUTORIZAR ONU ─────────────────────────────── */
+router.post("/onu/authorize_onu", async (req, res) => {
+  try {
+    console.log("🟢 Recibida solicitud de autorización de ONU desde frontend...");
+    const payload = req.body;
+
+    // Llama al cliente SmartOLT existente
+    const response = await sPost(ENDPOINTS.authorizeOnu, payload);
+    console.log("🔧 Respuesta SmartOLT:", response);
+
+    if (response?.status === false) {
+      return res.status(400).json({
+        status: false,
+        message: response?.error || response?.message || "SmartOLT rechazó la solicitud",
+      });
+    }
+
+    res.json({
+      status: true,
+      message: "ONU autorizada correctamente",
+      response,
+    });
+  } catch (error) {
+    console.error("❌ Error en /onu/authorize_onu:", error.message);
+    res.status(500).json({
+      status: false,
+      message: "Error al autorizar ONU",
+      details: error.message,
+    });
+  }
+});
+
 
 // 🔹 Potencia óptica
 router.get("/onus/:id/power", async (req, res) => {
