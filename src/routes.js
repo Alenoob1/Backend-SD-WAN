@@ -113,40 +113,45 @@ router.get("/onus/:id/power", async (req, res) => {
   res.status(data?.status === false ? 400 : 200).json(data);
 });
 
-/* ─────────────────────────────── 🟢 AUTORIZAR ONU ─────────────────────────────── */
-/* ─────────────────────────────── 🟢 AUTORIZAR ONU ─────────────────────────────── */
+/* ─────────────────────────────── 🟢 AUTORIZAR ONU (SMARTOLT) ─────────────────────────────── */
 router.post("/onu/authorize_onu", async (req, res) => {
   try {
     console.log("🟢 Recibida solicitud de autorización de ONU desde frontend...");
     const payload = req.body;
 
-    // 🧭 Mapa local entre nombre de OLT y su ID real en SmartOLT
+    // 🧭 Mapa de nombres de OLT a IDs (ajusta con tus IDs reales)
     const oltMap = {
-      POAQUIL: 1,       // cambia por el ID real que ves en /api/olts
+      POAQUIL: 1,
       COMALAPA: 2,
     };
 
-    // Asigna el olt_id correcto
     const olt_id = oltMap[payload.olt?.toUpperCase()] || null;
-
     if (!olt_id) {
-      return res.status(400).json({
-        status: false,
-        message: `OLT "${payload.olt}" no reconocida en el sistema.`,
-      });
+      return res.status(400).json({ status: false, message: "OLT no reconocida." });
     }
 
-    // Construimos el cuerpo correcto para SmartOLT
+    // 🧩 Cuerpo final que SmartOLT espera
     const body = {
       olt_id,
-      pon_type: payload.pon_type,
-      board: payload.board,
-      port: payload.port,
+      pon_type: payload.pon_type || "gpon",
+      board: Number(payload.board),
+      port: Number(payload.port),
       sn: payload.sn,
       onu_type: payload.onu_type,
-      vlan_id: payload.vlan_id,
-      svlan: payload.svlan,
-      description: `${payload.name} - ${payload.address}`,
+      custom_profile: "",
+      onu_mode: payload.onu_mode || "Routing",
+      cvlan: Number(payload.vlan_id),   // VLAN de usuario
+      svlan: Number(payload.svlan),     // VLAN de servicio
+      tag_transform_mode: "translate",
+      use_other_all_tls_vlan: 1,
+      vlan: Number(payload.vlan_id),
+      zone: payload.zone,
+      odb: payload.odb_splitter || "None",
+      name: payload.name,
+      address_or_comment: payload.address,
+      onu_external_id: payload.onu_external_id || "auto",
+      upload_speed_profile: payload.upload_speed || "50M",
+      download_speed_profile: payload.download_speed || "100M",
     };
 
     console.log("📤 Enviando a SmartOLT:", body);
@@ -176,12 +181,6 @@ router.post("/onu/authorize_onu", async (req, res) => {
   }
 });
 
-
-// 🔹 Potencia óptica
-router.get("/onus/:id/power", async (req, res) => {
-  const data = await sGet(ENDPOINTS.onuPower, { id: req.params.id });
-  res.status(data?.status === false ? 400 : 200).json(data);
-});
 
 /* ─────────────────────────────── 🟠 BAJA SEÑAL / OFFLINE ─────────────────────────────── */
 router.get("/onus/lowsignal", async (req, res) => {
