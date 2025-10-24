@@ -114,13 +114,44 @@ router.get("/onus/:id/power", async (req, res) => {
 });
 
 /* ─────────────────────────────── 🟢 AUTORIZAR ONU ─────────────────────────────── */
+/* ─────────────────────────────── 🟢 AUTORIZAR ONU ─────────────────────────────── */
 router.post("/onu/authorize_onu", async (req, res) => {
   try {
     console.log("🟢 Recibida solicitud de autorización de ONU desde frontend...");
     const payload = req.body;
 
-    // Llama al cliente SmartOLT existente
-    const response = await sPost(ENDPOINTS.authorizeOnu, payload);
+    // 🧭 Mapa local entre nombre de OLT y su ID real en SmartOLT
+    const oltMap = {
+      POAQUIL: 1,       // cambia por el ID real que ves en /api/olts
+      COMALAPA: 2,
+    };
+
+    // Asigna el olt_id correcto
+    const olt_id = oltMap[payload.olt?.toUpperCase()] || null;
+
+    if (!olt_id) {
+      return res.status(400).json({
+        status: false,
+        message: `OLT "${payload.olt}" no reconocida en el sistema.`,
+      });
+    }
+
+    // Construimos el cuerpo correcto para SmartOLT
+    const body = {
+      olt_id,
+      pon_type: payload.pon_type,
+      board: payload.board,
+      port: payload.port,
+      sn: payload.sn,
+      onu_type: payload.onu_type,
+      vlan_id: payload.vlan_id,
+      svlan: payload.svlan,
+      description: `${payload.name} - ${payload.address}`,
+    };
+
+    console.log("📤 Enviando a SmartOLT:", body);
+
+    const response = await sPost(ENDPOINTS.authorizeOnu, body);
     console.log("🔧 Respuesta SmartOLT:", response);
 
     if (response?.status === false) {
