@@ -140,8 +140,10 @@ router.post("/onu/authorize_onu", async (req, res) => {
       onu_type: payload.onu_type,
       custom_profile: "",
       onu_mode: payload.onu_mode || "Routing",
-      cvlan: Number(payload.vlan_id),   // VLAN de usuario
-      svlan: Number(payload.svlan),     // VLAN de servicio
+      vlan: Number(payload.vlan_id),    // VLAN principal
+      cvlan: Number(payload.vlan_id),   // VLAN cliente
+      svlan: Number(payload.svlan),     // VLAN servicio
+     // VLAN de servicio
       tag_transform_mode: "translate",
       use_other_all_tls_vlan: 1,
       vlan: Number(payload.vlan_id),
